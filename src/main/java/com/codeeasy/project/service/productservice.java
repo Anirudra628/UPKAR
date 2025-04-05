@@ -41,8 +41,8 @@ public class productservice {
       
       List<t_users> prodinfo ;
       try{
-      prodinfo =  (List<t_users>) repo.findById(1).orElse(new t_users(0,"","","","",""));
-
+      //prodinfo =  (List<t_users>) repo.findById(1).orElse(new t_users(0,"","","","",""));
+        prodinfo = (List<t_users>) repo.findAll();
       System.out.println(prodinfo);
 
       //System.out.println(prodinfo.get(0).getname());
