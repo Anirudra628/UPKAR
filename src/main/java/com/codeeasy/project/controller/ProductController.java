@@ -71,8 +71,8 @@ public class ProductController {
             @RequestParam(value ="appointment_id",required = false) String appointment_id)
             {
             
-            List<String>appointment_history_list = null;
-            List<String> appointment_particular = null;
+            List<List<String>>appointment_history_list = null;
+            List<List<String>> appointment_particular = null;
 
             System.out.println("inside get_Appointment_History method");
 

@@ -57,12 +57,12 @@ public class productservice {
         return repo.findByEmail(email).orElse(new t_users(0,"","","","",""));
     }
 
-    public List<String> getappointmentId(String email) {
+    public List<List<String>> getappointmentId(String email) {
       return repo.getappointmentId(email);
      
     }
 
-    public List<String> get_particular_appointment(String email, String appointment_id) {
+    public List<List<String>> get_particular_appointment(String email, String appointment_id) {
         return repo.get_particular_appointment(email, appointment_id);
     }
 

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CustomMethod {
 
-    List<String> getappointmentId(String email); // Integer is the primary key datatype
+    List<List<String>> getappointmentId(String email); // Integer is the primary key datatype
 
-    List<String> get_particular_appointment(String email, String appointment_id); // Integer is the primary key datatype
+    List<List<String>> get_particular_appointment(String email, String appointment_id); // Integer is the primary key datatype
     
 }
