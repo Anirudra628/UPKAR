@@ -1,0 +1,27 @@
+create or replace NONEDITIONABLE PROCEDURE GETAPPOINTMENTDETAILS(user_email IN VARCHAR2,OUTPUT OUT SYS_REFCURSOR ) AS 
+BEGIN
+  insert into t_temp_log values (user_email);
+  OPEN output FOR
+        SELECT 
+            tp.first_name AS patient_first_name,
+            tup.relationship relationship,
+            td.first_name AS doctor_first_name,
+            ta.appointment_date appointment_date,
+            ta.appointment_id appointment_id,
+            tld.name clinic_name, tld.type clinic_type, tld.address address,
+            tsmd.start_time start_time, tsmd.end_time   end_time     
+        FROM 
+            T_USERS ts, T_USER_PATIENTS tup, 
+            T_PATIENTS tp, T_APPOINTMENTS ta,
+            T_DOCTORS td, T_LOCATION_DETAIL tld,
+            T_SLOT_MASTER_DATA tsmd
+        WHERE ts.user_id = tup.user_id
+        AND tup.patient_id = tp.patient_id
+        AND ta.patient_id = tp.patient_id
+        AND ta.doctor_id = td.doctor_id
+        AND ta.location_id = tld.location_id
+        AND ta.slot_id = tsmd.slot_id
+        AND to_char(ts.email) = to_char(user_email)
+        AND user_email IS NOT NULL;
+       -- and rownum = 1;
+END GETAPPOINTMENTDETAILS;
