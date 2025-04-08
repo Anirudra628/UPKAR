@@ -12,7 +12,7 @@ import com.codeeasy.project.repository.productrepo;
 public class productservice {
 
     @Autowired
-    t_users prodinfo;
+    t_users userinfo;
 
     @Autowired
     productrepo repo;
@@ -22,12 +22,9 @@ public class productservice {
 
     
 
-    public void addproduct(t_users prodinfo){
-          
-       // prodinfo = new t_users();
-       // prodinfo.setdetails( price, brand, name, available);
-        repo.save(prodinfo);
-       // return repo.findById(0).orElse(new t_users(0.0,null,null,false));
+    public void addproduct(t_users userinfo){
+        repo.save(userinfo);
+  
     }
 
     public t_users getproduct(int id){
@@ -39,23 +36,36 @@ public class productservice {
     public List<t_users> fetchallproducts(){
 
       
-      List<t_users> prodinfo ;
+      List<t_users> userinfo ;
       try{
-      //prodinfo =  (List<t_users>) repo.findById(1).orElse(new t_users(0,"","","","",""));
-        prodinfo = (List<t_users>) repo.findAll();
-      System.out.println(prodinfo);
+      //userinfo =  (List<t_users>) repo.findById(1).orElse(new t_users(0,"","","","",""));
+        userinfo = (List<t_users>) repo.findAll();
+      System.out.println(userinfo);
 
-      //System.out.println(prodinfo.get(0).getname());
+      //System.out.println(userinfo.get(0).getname());
       }
       catch (Exception e){
-        prodinfo = null;
+        userinfo = null;
         System.out.println(e.getMessage());      }
       finally{
         System.out.println("inside finally block");
       }
-      return prodinfo;
+      return userinfo;
     }
 
-    
+    public t_users getuser(String email){
+        return repo.findByEmail(email).orElse(new t_users(0,"","","","",""));
+    }
+
+    public List<String> getappointmentId(String email) {
+      return repo.getappointmentId(email);
+     
+    }
+
+    public List<String> get_particular_appointment(String email, String appointment_id) {
+        return repo.get_particular_appointment(email, appointment_id);
+    }
+
+
 
 }
