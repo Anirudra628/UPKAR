@@ -18,8 +18,30 @@ public class ProductController {
 
     @Autowired
         productservice prod;   
+
     
-    @PostMapping
+    @GetMapping("/search")
+    public ResponseEntity<Object> search(
+        @RequestParam(value ="location",required = false) String location,
+        @RequestParam(value ="specialization",required = true) String specialization,
+        @RequestParam(value ="clinic_type",required = false) String clinic_type,
+        @RequestParam(value ="day",required = false) String day)
+    
+    {
+       List<List<String>> doctor_list = null;
+       System.out.println("inside search method");
+       doctor_list = prod.search_doctors(location, specialization, clinic_type, day);
+
+       System.out.println(doctor_list);
+
+       if (doctor_list == null || doctor_list.isEmpty()) {
+            return new ResponseEntity<Object>("No doctors found",HttpStatus.NOT_FOUND);
+        }        
+
+       return new ResponseEntity<Object>(doctor_list,HttpStatus.OK);
+
+    }
+    @PostMapping("/register")
     //adding a particular user
     public ResponseEntity<String> setproduct(@RequestBody t_users userinfo){
 
@@ -72,47 +94,19 @@ public class ProductController {
             {
             
             List<List<String>>appointment_history_list = null;
-            List<List<String>> appointment_particular = null;
 
             System.out.println("inside get_Appointment_History method");
 
             if(email == null || email.isEmpty()){
                 return new ResponseEntity<Object>("Cannot find appointment  details having blank email",HttpStatus.BAD_REQUEST);
             }
-           /*  if(appointment_id == null || appointment_id.isEmpty()){
-                return new ResponseEntity<Object>("Cannot find appointment  details having blank appointment id",HttpStatus.BAD_REQUEST);
-            } */
 
-            if(appointment_id != null && !appointment_id.isEmpty() && email != null && !email.isEmpty()){
-                try{
-                    appointment_particular = prod.get_particular_appointment(email, appointment_id);
-                }
-                catch(Exception e){
-                    System.out.println(e.getMessage());
-                }
-                if(appointment_particular == null || appointment_particular.isEmpty()){
-                    return new ResponseEntity<Object>("Either record has been deleted or corrupted",HttpStatus.NOT_FOUND);
-                }
-            }
-            else if(email != null && !email.isEmpty()){
-                try{
-                    appointment_history_list = prod.getappointmentId(email);
-                }
-                catch(Exception e){
-                    System.out.println(e.getMessage());
-                }
-                if(appointment_history_list == null || appointment_history_list.isEmpty()){
-                    return new ResponseEntity<Object>("No appointment history found",HttpStatus.NOT_FOUND);
-                }
-            }
-            
-            if (appointment_history_list != null && !appointment_history_list.isEmpty()) {
-                return new ResponseEntity<Object>(appointment_history_list,HttpStatus.OK);
-            } else if (appointment_particular != null && !appointment_particular.isEmpty()) {
-                return new ResponseEntity<Object>(appointment_particular,HttpStatus.OK);
-            } else {
-                return new ResponseEntity<Object>("You didn't have any appointemnt yet!",HttpStatus.NOT_FOUND);
-            }
+            appointment_history_list = prod.getappointmentId(email);
+            if (appointment_history_list == null || appointment_history_list.isEmpty()) {
+                return new ResponseEntity<Object>("You have not booked any appointment yet!",HttpStatus.NOT_FOUND);
+            }    
+
+            return new ResponseEntity<Object>(appointment_history_list,HttpStatus.OK);
             
         }
     }
