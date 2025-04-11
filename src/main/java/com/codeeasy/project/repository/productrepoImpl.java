@@ -11,14 +11,16 @@ public class productrepoImpl implements CustomMethod {
     @PersistenceContext
     private EntityManager entityManager;
 
+    String url = "jdbc:oracle:thin:@localhost:1521:UpkarDB"; // Replace with your Oracle database details
+    String username = "SYSTEM";
+    String password = "Disha123*#";
+
 
     @Override
     public List<List<String>> getappointmentId(String email) {
 
         List<List<String>> appointment_history = new ArrayList<>();
-        String url = "jdbc:oracle:thin:@localhost:1521:ORCL"; // Replace with your Oracle database details
-        String username = "SYSTEM";
-        String password = "Vihaan1234*#";
+        
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             Connection connection = DriverManager.getConnection(url, username, password);
@@ -57,6 +59,7 @@ public class productrepoImpl implements CustomMethod {
                 if (first_name != null) {
                     inner_list.add(first_name);
                 }
+                inner_list.add(relationship);
                 if (doctor_first_name != null) {
                     inner_list.add(doctor_first_name);
                 }
@@ -67,6 +70,12 @@ public class productrepoImpl implements CustomMethod {
                     inner_list.add(appointment_id);
                 }
 
+                inner_list.add(clinic_name);
+                inner_list.add(clinic_type);
+                inner_list.add(address);
+                inner_list.add(start_time);
+                inner_list.add(end_time);
+
                 appointment_history.add(inner_list);
 
             }
@@ -77,63 +86,65 @@ public class productrepoImpl implements CustomMethod {
         }
         return appointment_history;
     }
-
 
     @Override
-    public List<List<String>> get_particular_appointment(String email, String appointment_id) {
+    public List<List<String>> search_doctors(String location, String specialization, String clinic_type,String day)
+    {
+        List<List<String>> doctor_list = new ArrayList<>();
 
-        List<List<String>> appointment_history = new ArrayList<>();
-        String url = "jdbc:oracle:thin:@localhost:1521:ORCL"; // Replace with your Oracle database details
-        String username = "SYSTEM";
-        String password = "Vihaan1234*#";
-        try {
+        try{
             Class.forName("oracle.jdbc.driver.OracleDriver");
-            Connection connection = DriverManager.getConnection(url, username, password);
+
+            Connection conn = DriverManager.getConnection(url, username, password);
             System.out.println("Connection established successfully!");
 
-            // Prepare the CallableStatement for the stored procedure
-            CallableStatement callableStatement = connection.prepareCall("{call GETAPPOINTMENTDETAILS(?, ?)}");
+            CallableStatement cstmt = conn.prepareCall("{call SEARCH_DOCTORS(?,?,?,?,?)}");
+            cstmt.setString(1, location);
+            cstmt.setString(2, specialization);
+            cstmt.setString(3, clinic_type);
+            cstmt.setString(4, day);
+            cstmt.registerOutParameter(5, java.sql.Types.REF_CURSOR);
 
-            // Set the input parameter
-            callableStatement.setString(1, email);
-            // Register the output parameter
-            callableStatement.registerOutParameter(2, java.sql.Types.REF_CURSOR);
-            // Execute the stored procedure
-            callableStatement.execute();
+            cstmt.execute();
+            ResultSet rs = (ResultSet) cstmt.getObject(5);
+            System.out.println("ResultSet obtained successfully!");
 
-            ResultSet rs = (ResultSet) callableStatement.getObject(2);
-
-            while (rs.next()) {
-                String first_name = rs.getString(1);
-                String last_name = rs.getString(2);
-                String appointment_date = rs.getString(3);
-                // String appointment_id = rs.getString(4);
+            while(rs.next()){
+                String doctor_first_name = rs.getString(1);
+                String doctor_last_name = rs.getString(2);
+                String clinic_name = rs.getString(3);
+                String degree = rs.getString(4);
+                String experience = rs.getString(5);
+                String slot = rs.getString(6);
+                String timing_start = rs.getString(7);
+                String timing_end = rs.getString(8);
+                String fees = rs.getString(9);
 
                 List<String> inner_list = new ArrayList<>();
+                inner_list.add(doctor_first_name);
+                inner_list.add(doctor_last_name);
+                inner_list.add(clinic_name);
+                inner_list.add(degree);
+                inner_list.add(experience);
+                inner_list.add(slot);
+                inner_list.add(timing_start);
+                inner_list.add(timing_end);
+                inner_list.add(fees);
 
-                if (first_name != null) {
-                    inner_list.add(first_name);
-                }
-                if (last_name != null) {
-                    inner_list.add(last_name);
-                }
-                if (appointment_date == null || !appointment_date.isEmpty()) {
-                    inner_list.add(appointment_date);
-                }
-                if (appointment_id != null) {
-                    inner_list.add(appointment_id);
-                }
-
-                appointment_history.add(inner_list);
-
+                doctor_list.add(inner_list);
             }
             rs.close();
-            callableStatement.close();
-        } catch (Exception e) {
+            cstmt.close();
+            
+        }
+
+        catch(Exception e){
             System.out.println(e.getMessage());
         }
-        return appointment_history;
+
+        return doctor_list;
     }
+   
 
 }
 
