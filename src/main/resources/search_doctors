@@ -1,0 +1,22 @@
+create or replace NONEDITIONABLE PROCEDURE SEARCH_DOCTORS(input_location IN VARCHAR2,
+                                           input_specializaton IN VARCHAR2,
+                                           input_CLINIC_TYPE IN VARCHAR2,
+                                           input_DAY IN VARCHAR2,
+                                           OUTPUT OUT SYS_REFCURSOR
+                                           ) AS 
+BEGIN
+  OPEN OUTPUT FOR
+  select td.first_name, td.last_name,tld.name, 
+          td.degree, null, 
+         tsmd.slot_date, tsmd.start_time, tsmd.end_time, td.fees
+  from
+  system.t_doctors td, system.t_slot_master_data tsmd,
+  system.t_location_detail tld, system.t_doctor_slot_location tdsl
+  where lower(td.specialization) = nvl(lower(input_specializaton),lower(td.specialization))
+  and tsmd.slot_date = NVL(lower(input_DAY), lower(tsmd.slot_date))
+  and lower(tld.type) = nvl(lower(input_CLINIC_TYPE),lower(tld.type))
+  and tsmd.slot_id = tdsl.slot_id
+  and tdsl.doctor_id = td.doctor_id
+  and tdsl.location_id = tld.location_id;
+  
+END SEARCH_DOCTORS;
