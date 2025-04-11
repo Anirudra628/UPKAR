@@ -62,9 +62,13 @@ public class productservice {
      
     }
 
-    public List<List<String>> get_particular_appointment(String email, String appointment_id) {
-        return repo.get_particular_appointment(email, appointment_id);
+    public List<List<String>> search_doctors(String location, String specialization, String clinic_type, String day)
+    {
+        
+      return repo.search_doctors(location, specialization,clinic_type,day);
     }
+
+    
 
 
 
