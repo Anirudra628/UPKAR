@@ -16,9 +16,9 @@ public class productrepoImpl implements CustomMethod {
     public List<List<String>> getappointmentId(String email) {
 
         List<List<String>> appointment_history = new ArrayList<>();
-        String url = "jdbc:oracle:thin:@localhost:1521:UpkarDB"; // Replace with your Oracle database details
+        String url = "jdbc:oracle:thin:@localhost:1521:ORCL"; // Replace with your Oracle database details
         String username = "SYSTEM";
-        String password = "Disha123*#";
+        String password = "Vihaan1234*#";
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             Connection connection = DriverManager.getConnection(url, username, password);
@@ -83,9 +83,9 @@ public class productrepoImpl implements CustomMethod {
     public List<List<String>> get_particular_appointment(String email, String appointment_id) {
 
         List<List<String>> appointment_history = new ArrayList<>();
-        String url = "jdbc:oracle:thin:@localhost:1521:UpkarDB"; // Replace with your Oracle database details
+        String url = "jdbc:oracle:thin:@localhost:1521:ORCL"; // Replace with your Oracle database details
         String username = "SYSTEM";
-        String password = "Disha123*#";
+        String password = "Vihaan1234*#";
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             Connection connection = DriverManager.getConnection(url, username, password);
