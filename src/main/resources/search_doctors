@@ -6,8 +6,8 @@ create or replace NONEDITIONABLE PROCEDURE SEARCH_DOCTORS(input_location IN VARC
                                            ) AS 
 BEGIN
   OPEN OUTPUT FOR
-  select td.first_name, td.last_name,tld.name, 
-          td.degree, null, 
+  select td.first_name, td.last_name,tld.name, td.doctor_id,
+          td.degree, tsmd.slot_id, tld.location_id,
          tsmd.slot_date, tsmd.start_time, tsmd.end_time, td.fees
   from
   system.t_doctors td, system.t_slot_master_data tsmd,
