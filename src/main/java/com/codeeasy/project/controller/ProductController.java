@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.codeeasy.project.Entity.t_patients;
 import com.codeeasy.project.Entity.t_users;
 import com.codeeasy.project.service.productservice;
 
@@ -20,6 +21,58 @@ public class ProductController {
         productservice prod;   
 
     
+    @PostMapping("/register") 
+    public ResponseEntity<String> setproduct(@RequestBody t_users userinfo){
+
+        System.out.println("I am here"); 
+       // prod = null;
+        try{
+            this.prod.addproduct(userinfo);
+            return new ResponseEntity<String>("Added successfully", HttpStatus.OK);
+        }  
+
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
+
+    }
+    
+
+    @PostMapping("/add-patient")
+    public ResponseEntity<Object> add_patient( @RequestParam(value ="email",required = true) String email, 
+                                               @RequestParam(value="relation",required = true) String relation,
+                                               @RequestBody t_patients patientinfo
+                                             )
+    {
+
+        System.out.println("inside add_patient method"); 
+        int success_code = 0;
+        String p_fname = patientinfo.getFirst_name();
+        String p_lname = patientinfo.getLast_name();
+        String dob = patientinfo.getBirth_date().toString();
+        String gender = patientinfo.getGender();
+        System.out.println("Patient first name is: "+p_fname);
+        System.out.println("Patient last name is: "+p_lname);
+        System.out.println("Patient dob is: "+dob);
+        System.out.println(gender);
+        try{
+            success_code = prod.add_patient(email, p_fname,p_lname,dob,gender,relation);
+            if (success_code != 0) {
+                return new ResponseEntity<Object>(success_code,HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<Object>("Added successfully", HttpStatus.OK);
+        }  
+
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
+    }
+
+
     @GetMapping("/search")
     public ResponseEntity<Object> search(
         @RequestParam(value ="location",required = false) String location,
@@ -41,24 +94,7 @@ public class ProductController {
        return new ResponseEntity<Object>(doctor_list,HttpStatus.OK);
 
     }
-    @PostMapping("/register")
-    //adding a particular user
-    public ResponseEntity<String> setproduct(@RequestBody t_users userinfo){
-
-        System.out.println("I am here"); 
-       // prod = null;
-        try{
-            this.prod.addproduct(userinfo);
-            return new ResponseEntity<String>("Added successfully", HttpStatus.OK);
-        }  
-
-        catch(Exception e){
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        
-
-    }
+   
 
     // for testing purpose only
     @GetMapping("/getallusers")
@@ -87,6 +123,32 @@ public class ProductController {
         }
     
 
+    @PostMapping("/book-appointment")
+    public ResponseEntity<Object> book_appointment(
+        @RequestParam(value ="email",required = true) String email,
+        @RequestParam(value ="doctor_id",required = true) String doctor_id,
+        @RequestParam(value ="location_id",required = true) String location_id,
+        @RequestParam(value ="slot_id",required = true) String slot_id,
+        @RequestParam(value ="relation",required = true) String relation,
+        @RequestParam(value = "confirm-booking",required = false) String confirm_booking
+        )
+    {
+        Integer success_code = 0;
+        System.out.println("inside book_appointment method");
+
+        if(email == null || email.isEmpty()){
+            return new ResponseEntity<Object>("Email cannot be blank or null",HttpStatus.BAD_REQUEST);
+        }
+        System.out.println("Relation is: "+relation);
+        success_code = prod.save_appointment(email, relation, doctor_id, location_id, slot_id, confirm_booking);
+        
+        if (success_code == 0) {
+            return new ResponseEntity<Object>("Appointment not booked successfully!",HttpStatus.INTERNAL_SERVER_ERROR);
+        }        
+
+        return new ResponseEntity<Object>(success_code,HttpStatus.OK);
+
+    }
     @GetMapping("/appointment-history")
         public ResponseEntity<Object>get_Appointment_History(
             @RequestParam(value ="email",required = false) String email,
@@ -111,3 +173,4 @@ public class ProductController {
         }
     }
 
+    
