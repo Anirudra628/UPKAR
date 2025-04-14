@@ -33,7 +33,7 @@ BEGIN
                      BEGIN
                      SELECT CAST(
                          TO_TIMESTAMP_TZ(
-                           REPLACE('Sat Mar 17 05:30:00 IST 2001', 'IST', 'Asia/Kolkata'),
+                           REPLACE(IN_PATIENT_DOB, 'IST', 'Asia/Kolkata'),
                            'Dy Mon DD HH24:MI:SS TZR YYYY',
                            'NLS_DATE_LANGUAGE=ENGLISH'
                          ) AS DATE
