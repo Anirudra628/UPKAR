@@ -1,4 +1,4 @@
-CREATE OR REPLACE NONEDITIONABLE PROCEDURE ADDPATIENT (
+create or replace NONEDITIONABLE PROCEDURE ADDPATIENT (
                                        IN_USER_EMAIL IN VARCHAR2,
                                        IN_PATIENT_FNAME IN VARCHAR2,
                                        IN_PATIENT_LNAME IN VARCHAR2,
@@ -14,6 +14,8 @@ V_USER_PATIENT_ID SYSTEM.T_USER_PATIENTS.USER_PATIENT_ID%TYPE;
 ERR_MSG VARCHAR2(200);
 V_DOB_DATE DATE;
 BEGIN
+  V_USER_ID := NULL;
+  V_PATIENT_ID:= NULL;
   IF IN_USER_EMAIL IS NOT NULL THEN
         BEGIN
                 SELECT TU.USER_ID 
@@ -23,13 +25,21 @@ BEGIN
         EXCEPTION WHEN OTHERS THEN
           V_USER_ID := NULL;
         END;
-   
-   
+
+    insert into t_temp_log values ('got user id from ' || V_USER_ID);
         IF V_USER_ID IS NOT NULL THEN
            BEGIN
-                 
+
                      BEGIN
-                        V_DOB_DATE := TO_DATE(IN_PATIENT_DOB, 'DD/MM/YYYY');
+                     SELECT CAST(
+                         TO_TIMESTAMP_TZ(
+                           REPLACE('Sat Mar 17 05:30:00 IST 2001', 'IST', 'Asia/Kolkata'),
+                           'Dy Mon DD HH24:MI:SS TZR YYYY',
+                           'NLS_DATE_LANGUAGE=ENGLISH'
+                         ) AS DATE
+                       ) into V_DOB_DATE
+                     FROM dual;
+                        --V_DOB_DATE := TO_DATE(IN_PATIENT_DOB, 'DD/MM/YYYY');
                      EXCEPTION
                         WHEN OTHERS THEN
                         V_DOB_DATE := NULL; -- Or handle error accordingly
@@ -37,7 +47,10 @@ BEGIN
                  SELECT SYSTEM.UPKAR_SEQUENCE.NEXTVAL
                  INTO V_PATIENT_ID
                   FROM DUAL;
-          
+    
+                insert into system.t_temp_log values 
+                (V_PATIENT_ID|| ' ' ||IN_PATIENT_FNAME || ' ' ||IN_PATIENT_LNAME || ' ' || IN_PATIENT_GNDR || ' ' || V_DOB_DATE || ' ' ||null || ' ' ||'active');
+                 
                  INSERT INTO SYSTEM.T_PATIENTS 
                  (
                  PATIENT_ID,
@@ -53,22 +66,26 @@ BEGIN
                     IN_PATIENT_FNAME,
                     IN_PATIENT_LNAME,
                     IN_PATIENT_GNDR,
-                    TO_CHAR(V_DOB_DATE,'DD/MM/YYYY'),
+                    V_DOB_DATE,
                     NULL,
                     'Active'
                   );
-            
+
                   SUCCESSCODE := 0;  
             EXCEPTION WHEN OTHERS THEN
                   ERR_MSG := SQLERRM;
                   SUCCESSCODE := 100;
             END;
+            
+            insert into t_temp_log values(err_msg);
             IF SUCCESSCODE = 0 THEN
                  BEGIN
                          SELECT SYSTEM.UPKAR_SEQUENCE.NEXTVAL
                          INTO V_USER_PATIENT_ID
                           FROM DUAL;
-          
+                          
+                        insert into t_temp_log values('having user id '||v_user_id);
+
                          INSERT INTO SYSTEM.T_USER_PATIENTS 
                          (
                          USER_PATIENT_ID,
@@ -82,21 +99,23 @@ BEGIN
                             V_PATIENT_ID,
                             IN_RELATIONSHIP
                           );
-            
+
                          SUCCESSCODE := 0;  
                 EXCEPTION WHEN OTHERS THEN
                          ERR_MSG := SQLERRM;
                          SUCCESSCODE := 100;
                 END;
-       
+                 insert into t_temp_log values(err_msg);
+            
+
             END IF;
-    
+
          END IF;
-    
+
    ELSE
      SUCCESSCODE := 999;
    END IF;
-   
+
 EXCEPTION WHEN OTHERS THEN
    ERR_MSG := SQLERRM;
    SUCCESSCODE := 999;
