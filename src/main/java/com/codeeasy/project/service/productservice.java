@@ -68,8 +68,12 @@ public class productservice {
       return repo.search_doctors(location, specialization,clinic_type,day);
     }
 
-    
+    public Integer save_appointment(String email,String relation, String doctor_id, String location_id, String slot_id,String confirm) {
+        return repo.save_appointment(email,relation,doctor_id,location_id,slot_id, confirm);
+    }  
 
-
+    public Integer add_patient(String email,String p_fname, String p_lname, String dob, String gender, String relation) {
+        return repo.add_patient(email, p_fname, p_lname, dob, gender, relation);
+    }
 
 }
