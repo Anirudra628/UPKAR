@@ -1,0 +1,61 @@
+create or replace NONEDITIONABLE PROCEDURE SAVE_APPOINTMENT(input_email in varchar2, 
+                                            input_relationship in varchar2,
+                                            input_doctor_id in varchar2,
+                                            input_location_id in varchar2,
+                                            input_slot_id in varchar2,
+                                            confirmed in varchar2,
+                                            successcode  out number
+                                            ) AS 
+app_user_id     VARCHAR2(100);
+app_patient_id  VARCHAR2(100);
+app_id          VARCHAR2(100);
+app_date        DATE;    
+psuccesscode     number(10);
+
+BEGIN
+    psuccesscode := 1;
+    BEGIN
+        SELECT tu.user_id, tup.patient_id
+        INTO APP_USER_ID, APP_PATIENT_ID
+        FROM
+        SYSTEM.T_USERS TU,
+        SYSTEM.t_user_patients TUP
+        WHERE TU.EMAIL = INPUT_EMAIL
+        AND tu.user_id = TUP.USER_ID
+        AND lower(TUP.RELATIONSHIP) = lower(INPUT_RELATIONSHIP);
+        
+    EXCEPTION WHEN OTHERS THEN
+        APP_USER_ID:= NULL;
+        APP_PATIENT_ID:= NULL;
+
+    END;
+    
+    
+    BEGIN
+        SELECT UPKAR_SEQUENCE.NEXTVAL
+        INTO APP_ID 
+        FROM DUAL;
+        
+        SELECT TSMD.slot_date
+        INTO APP_DATE
+        FROM SYSTEM.T_SLOT_MASTER_DATA TSMD
+        WHERE TSMD.SLOT_ID = INPUT_SLOT_ID;
+        
+        INSERT INTO SYSTEM.T_APPOINTMENTS(APPOINTMENT_ID, PATIENT_ID, BOOKED_BY_USER_ID, DOCTOR_ID, SLOT_ID, LOCATION_ID, APPOINTMENT_DATE, STATUS)
+        VALUES(APP_ID, APP_PATIENT_ID, APP_USER_ID,INPUT_DOCTOR_ID,INPUT_SLOT_ID, INPUT_LOCATION_ID, APP_DATE, 'Pending');
+        
+        if confirmed = 'confirmed' then
+         update system.t_appointments ta
+         set status = confirmed
+         where ta.appointment_id = app_id;
+        end if;
+        
+        successcode:=1;
+    
+    EXCEPTION WHEN OTHERS THEN
+        APP_ID:= NULL;
+        APP_DATE:= NULL;
+    END;
+      
+
+END SAVE_APPOINTMENT;
